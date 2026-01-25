@@ -205,6 +205,116 @@ This is important because:
 
 ---
 
+
+## Task-Level Timing Diagram (Control Loop Timeline)
+
+
+```
+
+Time (ms) →
+┌──────────────────────────────────────────────┐
+│ Encoder Task                                 │  t = 0 ms
+│ - Read PCNT pulse counters                   │
+│ - Compute wheel RPM                          │
+└──────────────────────────────────────────────┘
+        ↓
+┌──────────────────────────────────────────────┐
+│ PID Control Task                             │  t ≈ 2 ms
+│ - Read target RPM                            │
+│ - Read measured RPM                          │
+│ - Compute PID output (PWM command)           │
+└──────────────────────────────────────────────┘
+        ↓
+┌──────────────────────────────────────────────┐
+│ Motor Output Task                            │  t ≈ 4 ms
+│ - Update PWM duty cycle                      │
+│ - Update motor direction / brake mode        │
+└──────────────────────────────────────────────┘
+        ↓
+┌──────────────────────────────────────────────┐
+│ Safety Monitor Task                          │  Continuous
+│ - Encoder timeout                            │
+│ - Stall detection                            │
+│ - UART timeout                               │
+└──────────────────────────────────────────────┘
+
+Next PID cycle begins at t = 20 ms
+```
+
+---
+
+
+## State Machine Diagram
+
+
+```
+        +-------+
+        | STOP  |
+        | PWM=0 |
+        | Brake |
+        +-------+
+            |
+   Valid RPM command
+            |
+            v
+        +-------+
+        | RUN   |
+        | PID   |
+        | PWM   |
+        +-------+
+            |
+        Fault detected
+            |
+            v
+        +-------+
+        | FAULT |
+        | PWM=0 |
+        | Brake |
+        +-------+
+            |
+     Manual / software reset
+            |
+            v
+          STOP
+```
+
+### State descriptions
+
+1. STOP
+
+   - Motors are actively braked (no coasting).
+
+   - Encoder and PID are idle.
+
+   - Transition to RUN occurs only when a valid non-zero RPM command is received.
+
+2. RUN
+
+   - Encoder feedback and PID control are active.
+
+   - PWM is continuously adjusted to maintain target RPM.
+
+   - Transition to STOP if target RPM becomes zero.
+
+   - Transition to FAULT if any safety violation occurs.
+
+3. FAULT
+
+   - Motors are immediately disabled and braked.
+
+   - Fault status is reported to the Raspberry Pi.
+
+   - System remains locked until an explicit reset is issued.
+
+4. Design intent
+
+   - Safety is enforced locally on the ESP32.
+
+   - High-level ROS commands cannot override fault conditions.
+
+   - Ensures safe behavior even during communication or software failures.
+
+
 ## Why this architecture works well
 
 This design:
