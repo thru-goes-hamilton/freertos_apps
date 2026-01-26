@@ -1,7 +1,86 @@
 # Motor Controller
 
 
-This guild contains the high level guide on what each file should contain
+This contains the high level guide on what each file should contain
+
+
+## File Structure
+
+```
+
+motor_test/
+├── app.c                     ← Entry point (FreeRTOS init)
+│
+├── config/
+│   ├── motor_config.h        ← Pin map, limits, constants
+│   ├── control_config.h      ← Loop rates, PID limits
+│
+├── drivers/
+│   ├── motor_driver.c        ← PWM + direction (L298N)
+│   ├── motor_driver.h
+│   ├── encoder_pcnt.c        ← Encoder using PCNT
+│   ├── encoder_pcnt.h
+│
+├── control/
+│   ├── motor_controller.c    ← High-level motor logic
+│   ├── motor_controller.h
+│   ├── pid_controller.c      ← PID math (later)
+│   ├── pid_controller.h
+│
+├── comms/
+│   ├── uart_protocol.c       ← UART RX/TX + parsing
+│   ├── uart_protocol.h
+│
+├── system/
+│   ├── system_state.c        ← RUN / STOP / FAULT
+│   ├── system_state.h
+│   ├── safety.c              ← watchdog, timeout logic
+│   ├── safety.h
+│
+├── test/
+│   ├── pid_tuning.c          ← Ku / ZN experiments (already)
+│
+motor_test/
+├── app.c                     ← Entry point (FreeRTOS init)
+│
+├── config/
+│   ├── motor_config.h        ← Pin map, limits, constants
+│   ├── control_config.h      ← Loop rates, PID limits
+│
+├── drivers/
+│   ├── motor_driver.c        ← PWM + direction (L298N)
+│   ├── motor_driver.h
+│   ├── encoder_pcnt.c        ← Encoder using PCNT
+│   ├── encoder_pcnt.h
+│
+├── control/
+│   ├── motor_controller.c    ← High-level motor logic
+│   ├── motor_controller.h
+│   ├── pid_controller.c      ← PID math (later)
+│   ├── pid_controller.h
+│
+├── comms/
+│   ├── uart_protocol.c       ← UART RX/TX + parsing
+│   ├── uart_protocol.h
+│
+├── system/
+│   ├── system_state.c        ← RUN / STOP / FAULT
+│   ├── system_state.h
+│   ├── safety.c              ← watchdog, timeout logic
+│   ├── safety.h
+│
+├── test/
+│   ├── pid_tuning.c          ← Ku / ZN experiments (already)
+│
+├── final_architecture.md
+
+
+```
+
+
+Following are the files for motor controller:
+
+
 
 ---------
 
