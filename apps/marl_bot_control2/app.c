@@ -14,7 +14,7 @@
 #define RCSOFTCHECK(fn){ rcl_ret_t rc = (fn); if(rc != RCL_RET_OK){ printf("Soft error %d at %d\n", rc, __LINE__); } }
 
 // Motor driver pins
-#define M1_IN1 14
+#define M1_IN1 32 // pin 14 was fault on esp32 for marl_bot1
 #define M1_IN2 27
 #define M1_PWM 12 // LEDC_CHANNEL_0
 #define M2_IN1 26
